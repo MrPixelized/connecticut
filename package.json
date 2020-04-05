@@ -15,5 +15,10 @@
   "bugs": {
     "url": "https://github.com/MrPixelized/connecticut/issues"
   },
-  "homepage": "https://github.com/MrPixelized/connecticut#readme"
+  "homepage": "https://github.com/MrPixelized/connecticut#readme",
+  "dependencies": {
+    "ejs": "^3.0.2",
+    "express": "^4.17.1",
+    "socket.io": "^2.3.0"
+  }
 }

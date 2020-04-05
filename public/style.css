@@ -10,10 +10,6 @@ connecticut-board {
   display: block;
   width: 40em;
   height: 40em;
-	
-	left: calc(50% - 20em);
-}
 
-h1 {
-	font-family: "Comic Sans MS", "Comic Sans", cursive;
+	left: calc(50% - 20em);
 }

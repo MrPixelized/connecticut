@@ -2,7 +2,7 @@ class ConnecticutBoard extends HTMLElement {
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
-    
+
     /* Set default values. */
     this.tileTexture = 'assets/tiles/brown_tile.svg'
     this.boardTexture = 'assets/boards/default_board.jpg'
@@ -48,37 +48,39 @@ class ConnecticutBoard extends HTMLElement {
     this.board = document.createElement('img')
 		this.board.id = 'board'
     this.board.src = this.boardTexture
-		
+
     /* Generate all squares of the board, put them inside a 2d array,
      * and add them to the HTML grid
      */
     this.grid = document.createElement('div')
 		this.grid.id = 'grid'
-		
+
     this.squares = []
 
+    /* Loop through the specified sizes add new squares
+     * into the square array
+     */
     for (var y = 0; y < this.size; y++) {
       this.squares.push([])
       for (var x = 0; x < this.size; x++) {
         var square = document.createElement('connecticut-square')
         square.setAttribute('x', x)
         square.setAttribute('y', y)
-        square.setAttribute('tile', this.tileTexture)
-				
+
         this.squares[y].push(square)
         this.grid.appendChild(square)
       }
     }
 
     /* Make sure squares is indexed by [x][y] instead of [y][x] */
-    this.squares = this.squares[0].map((col, i) => this.squares.map(row => row[i]))
-		
+    this.squares = this.squares[0].map((_, i) => this.squares.map(x => x[i]))
+
     /* Create a container for the board and grid,
 		 * and add everything to the document
      */
     this.container = document.createElement('div')
     this.container.id = 'container'
-		
+
     /* Set the CSS for the child elements of the board */
 		this.shadowRoot.innerHTML += `
       <style>
@@ -97,7 +99,7 @@ class ConnecticutBoard extends HTMLElement {
           left: 0;
           bottom: 0;
           right: 0;
-					
+
           grid-template-columns: repeat(${this.size}, 1fr);
           grid-template-rows: repeat(${this.size}, 1fr);
         }
@@ -105,7 +107,7 @@ class ConnecticutBoard extends HTMLElement {
         #container {
           position: relative;
           display: block;
-          
+
           height: 100%;
           width: 100%;
 
@@ -129,4 +131,3 @@ class ConnecticutBoard extends HTMLElement {
 }
 
 window.customElements.define('connecticut-board', ConnecticutBoard)
-window.customElements.define('connecticut-square', Square)

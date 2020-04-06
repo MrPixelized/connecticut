@@ -1,3 +1,6 @@
+#!/usr/bin/env node
+
+/* Imports */
 const express = require('express')
 const app = express()
 const connecticut = require('./private/connecticut.js')

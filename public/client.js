@@ -20,10 +20,10 @@ for (board of document.getElementsByTagName('connecticut-board')) {
   board.addEventListener('requestmove', (e) => {
 		/* Send move data */
 		board.socket.emit('requestmove', {
-			x: e.detail.x,
-			y: e.detail.y,
-			color: board.viewer,
-			id: board.gameId
+			x: parseInt(e.detail.x),
+			y: parseInt(e.detail.y),
+			color: parseInt(board.viewer),
+			id: parseInt(board.gameId)
 		})
   })
 }

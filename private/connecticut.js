@@ -66,7 +66,11 @@ class Game {
    * with no opposing stones breaking the connections
    */
   * linkedSquares(x, y, color) {
-
+    for ([potentialX, potentialY] of this.reachedSquares(x, y)) {
+      if (!isBroken(potentialX, potentialY, x, y, color)) {
+        yield [potentialX, potentialY]
+      }
+    }
   }
 
   /* Generator function to return all coordinates that are

@@ -1,9 +1,13 @@
 const express = require('express')
 const app = express()
 const connecticut = require('./private/connecticut.js')
+const helmet = require('helmet')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')
+
+/* Make the server use helmet for added security */
+app.use(helmet())
 
 /* Make sure the app uses the 'public' directory for static content */
 app.use(express.static('public'))

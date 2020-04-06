@@ -44,8 +44,58 @@ class Game {
     }
   }
 
+  /* Tests if the given move is legal */
   isLegalMove(x, y, color) {
-    return color == this.toPlay
+    /* The move must be made by the appropriate player */
+    if (color != this.toPlay) {
+      return false
+    }
+
+    /* A piece can only be placed on an empty square */
+    if (this.squares[x][y] != Color.EMPTY) {
+      return false
+    }
+
+    /* Any move on the edge is always going to be legal */
+    if (x == 0 || y == 0 || x == this.size - 1 || y == this.size - 1) {
+      return true
+    }
+  }
+
+  /* Get all squares to which a stone on x, y of color are linked,
+   * with no opposing stones breaking the connections
+   */
+  * linkedSquares(x, y, color) {
+
+  }
+
+  /* Generator function to return all coordinates that are
+   * a knight's move away from the given square
+   */
+  * reachedSquares(x, y) {
+    /* Get the set of four knight's moves along the y axis */
+    for (dx of (-1, 1)) {
+      for (dy of (-2, 2)) {
+        let i = x + dx
+        let j = y + dy
+
+        if (0 < i && i < this.size && 0 < j && j < this.size) {
+          yield [i, j]
+        }
+      }
+    }
+
+    /* Get the set of four knight's moves along the x axis */
+    for (dx of (-2, 2)) {
+      for (dy of (-1, 1)) {
+        let i = x + dx
+        let j = y + dy
+
+        if (0 < i && i < this.size && 0 < j && j < this.size) {
+          yield [i, j]
+        }
+      }
+    }
   }
 }
 

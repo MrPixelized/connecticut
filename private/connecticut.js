@@ -62,6 +62,26 @@ class Game {
     }
   }
 
+  /* Tests if the connection between x1, y1 and x2, y2 is broken by -1*color */
+  isBroken(x1, y1, x2, y2, color) {
+    // var dx = x1 - x2
+    // var dy = y1 - y2
+    //
+    // var c = []
+    //
+    // for (let x = dx; x != 0; x -= Math.sign(dx)) {
+    //   for (let y = dy; y != 0; y -= Math.sign(dy)) {
+    //     if (this.squares[x2 + x][y2 + y] == -1*color) {
+    //       c.push()
+    //     }
+    //   }
+    // }
+    //
+    // if (dx > 1) {
+    //   x
+    // }
+  }
+
   /* Get all squares to which a stone on x, y of color are linked,
    * with no opposing stones breaking the connections
    */
@@ -78,25 +98,19 @@ class Game {
    */
   * reachedSquares(x, y) {
     /* Get the set of four knight's moves along the y axis */
-    for (dx of (-1, 1)) {
-      for (dy of (-2, 2)) {
-        let i = x + dx
-        let j = y + dy
+    for (a of (-1, 1)) {
+      for (b of (-2, 2)) {
+        let x1 = x + a
+        let y1 = y + b
+        let x2 = x + b
+        let y2 = y + a
 
-        if (0 < i && i < this.size && 0 < j && j < this.size) {
+        if (0 < x1 && x1 < this.size && 0 < y1 && y1 < this.size) {
           yield [i, j]
         }
-      }
-    }
 
-    /* Get the set of four knight's moves along the x axis */
-    for (dx of (-2, 2)) {
-      for (dy of (-1, 1)) {
-        let i = x + dx
-        let j = y + dy
-
-        if (0 < i && i < this.size && 0 < j && j < this.size) {
-          yield [i, j]
+        if (0 < x2 && x2 < this.size && 0 < y2 && y2 < this.size) {
+          yield [k, l]
         }
       }
     }

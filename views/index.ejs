@@ -1,24 +1,16 @@
 <!DOCTYPE html>
 <html>
   <head>
-		<link rel="shortcut icon" href="/favicon.svg" />
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width">
-    <title style="">Connecticut Online</title>
+    <title>Connecticut Online</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
-		<script src="square.js"></script>
-    <script src="board.js"></script>
   </head>
   <body>
-		<h1>Connecticut 4 Nerds</h1>
-		<connecticut-board
-			viewer="black"
-			boardtexture="assets/boards/wooden_board.jpg"
-			size="13"
-		/>
-		<script src="client.js"></script>
+		<h1>Play connecticut online!</h1>
+
+    <form method="GET" action="/play">
+      <input type="number" name="gameId" />
+      <input type="submit" />
+    </form>
   </body>
 </html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Connecticut Online</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+		<script src="square.js"></script>
+    <script src="board.js"></script>
+  </head>
+  <body>
+		<h1>Play connecticut online!</h1>
+
+    <connecticut-board
+			boardtexture="assets/boards/wooden_board.jpg"
+      gameId="<%= gameId %>"
+		/>
+
+		<script src="client.js"></script>
+  </body>
+</html>

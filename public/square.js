@@ -8,55 +8,6 @@ class Square extends HTMLElement {
   constructor() {
     super()
     this.attachShadow({ mode: 'open' })
-    this.shadowRoot.innerHTML += `
-      <style>
-        #container {
-          user-drag: none;
-        }
-
-        #container[color="${Color.EMPTY}"] #overlay:hover {
-          opacity: 0.5;
-        }
-
-        #container[color="${Color.EMPTY}"] #overlay {
-          opacity: 0;
-        }
-
-        #overlay {
-          opacity: 1;
-
-          display: block;
-          position: absolute;
-
-          top: 0;
-          left: 0;
-          bottom: 0;
-          right: 0;
-
-          border-radius: 50%;
-
-          user-drag: none;
-          -moz-user-select: none;
-          -webkit-user-drag: none;
-        }
-
-        #tile {
-          display: block;
-
-          width: calc(100% + 1.5px);
-          height: calc(100% + 1.5px);
-          margin: -0.75px;
-
-          user-drag: none;
-          -moz-user-select: none;
-          -webkit-user-drag: none;
-        }
-
-        :host {
-          display: block;
-          position: relative;
-        }
-      </style>`
   }
 
   static get observedAttributes() {
@@ -134,11 +85,61 @@ class Square extends HTMLElement {
     /* Set their attributes */
     this.tile.id = 'tile'
     this.tile.src = this.tileTexture
+    /* Make the tile un-draggable */
+    this.tile.ondragstart = (e) => {return false}
 
     this.overlay.id = 'overlay'
     this.overlay.src = this.texture
+    /* Make the overlay un-draggable */
+    this.overlay.ondragstart = (e) => {return false}
 
     this.container.id = 'container'
+
+    this.shadowRoot.innerHTML += `
+      <style>
+        #container {
+          user-select: none;
+        }
+
+        #container[color="${Color.EMPTY}"] #overlay:hover {
+          opacity: 0.5;
+        }
+
+        #container[color="${Color.EMPTY}"] #overlay {
+          opacity: 0;
+        }
+
+        #overlay {
+          opacity: 1;
+
+          display: block;
+          position: absolute;
+
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+
+          border-radius: 50%;
+
+          user-select: none;
+        }
+
+        #tile {
+          display: block;
+
+          width: calc(100% + 1.5px);
+          height: calc(100% + 1.5px);
+          margin: -0.75px;
+
+          user-select: none;
+        }
+
+        :host {
+          display: block;
+          position: relative;
+        }
+      </style>`
 
     this.container.appendChild(this.tile)
     this.container.appendChild(this.overlay)

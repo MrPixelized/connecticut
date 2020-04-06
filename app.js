@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const connecticut = require('./private/connecticut.js')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')
@@ -13,15 +14,36 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
+app.get('/play', (req, res) => {
+  res.render('play', {gameId: req.query.gameId})
+})
+
 const io = require('socket.io')(server)
+
+gamesInPlay = {}
 
 /* Set up high-level event for incoming connections */
 io.on('connection', (socket) => {
+  /* A connected user makes a request to join a game */
+  socket.on('join', (game) => {
+    id = game.gameId
 
-  var board = new GameConnection(socket)
+    if (!gamesInPlay[id]) {
+      /* If the game does not exist, create it */
+      board = new GameConnection(id)
 
-  socket.on('requestmove', (move) => {
-    board.makeMove(socket, move.x, move.y, move.color)
+      /* Add the player to the game */
+      board.joinUser(socket)
+
+      /* Store the game connection in the global list of game connections */
+      gamesInPlay[id] = board
+    } else {
+      /* Otherwise, join the game */
+      gamesInPlay[id].joinUser(socket)
+    }
+
+    /* After all is said and done, synchronize the new board to all users */
+    gamesInPlay[id].sync()
   })
 })
 
@@ -29,16 +51,17 @@ io.on('connection', (socket) => {
  * as well as the id of the game and other metadata
  */
 class GameConnection {
-  constructor(player1, player2=null) {
-    this.gameId = GameConnection.maxGameId++
+  constructor(gameId) {
+    /* Set the game id */
+    this.gameId = gameId
 
-    this.player1 = player1
-    this.player2 = player2
+    this.player1 = null
+    this.player2 = null
 
     /* Intialize a list to contain all of the connections viewing the game */
     this.viewers = []
 
-    this.game = new Game()
+    this.game = new connecticut.Game()
   }
 
   /* Event handler for move made */
@@ -50,75 +73,77 @@ class GameConnection {
       this.game.setStone(x, y, color)
     }
 
-    this.player1.emit('move', {x: x, y: y, color: this.game.squares[x][y]})
-
-    if (this.player2) {
-      this.player2.emit('move', {x: x, y: y, color: this.game.squares[x][y]})
-    }
-
-    for (viewer of this.viewers) {
-      viewer.emit('move', {x: x, y: y, color: this.game.squares[x][y]})
-    }
+    /* Synchronize the new board with all players and viewers */
+    this.sync()
   }
 
   /* Event handler for player joined */
-  joinPlayer(player) {
-    if (!this.player2) {
-      this.player2 = player
+  joinUser(user) {
+    /* If the players have already joined, the new user is a viewer */
+    if (this.player1 && this.player2) {
+      this.joinViewer(user)
     } else {
-      this.viewers.push(player)
+      this.joinPlayer(user)
     }
   }
-}
 
-GameConnection.maxGameId = 0
+  /* Function to add a viewer to the game */
+  joinViewer(user) {
+    this.viewers.push(user)
+  }
 
-/* A class to contain an actual game state:
- * which side is to move, how large the board is, what the position looks like
- * timing information etc.
- */
-class Game {
-  constructor(boardSize=13) {
-    /* The first player of a new game is always black */
-    this.toPlay = Game.Color.BLACK
+  /* Function to add a player to the game */
+  joinPlayer(user) {
+    if (!this.player1) {
+      this.player1 = user
+    } else {
+      this.player2 = user
+    }
 
-    this.size = boardSize
+    /* Make sure the new player can send moves to the server */
+    user.on('requestmove', (move) => {
+      this.makeMove(user, move.x, move.y, move.color)
+    })
 
-    /* Create a squares array to keep track of the game's state */
-    this.squares = []
-
-    /* Loop through the specified sizes to add squares into the square array */
-    for (var x = 0; x < this.size; x++) {
-      this.squares.push([])
-      for (var y = 0; y < this.size; y++) {
-        /* All squares will initially be empty */
-        var square = Game.Color.EMPTY
-        this.squares[x].push(square)
+    /* Handle disconnected event */
+    user.on('disconnected', () => {
+      if (user == this.player1) {
+        this.player1 = null
+      } else {
+        this.player2 = null
       }
+    })
+  }
+
+  /* Synchronize the board between all viewers and players */
+  sync() {
+    this.updateUser(this.player1)
+    this.updateUser(this.player2)
+
+    for (var viewer of this.viewers) {
+      this.updateUser(viewer)
     }
   }
 
-  /* A function to switch the current player who's to play to the other side */
-  endTurn() {
-    this.toPlay *= -1
-  }
-
-  /* Tests if the given move is legal and places the stone if it is */
-  setStone(x, y, color) {
-    if (this.isLegalMove(x, y, color)) {
-      this.squares[x][y] = color
-
-      this.endTurn()
+  /* Synchronize the board for a specific user */
+  updateUser(user) {
+    if (user == null) {
+      return
     }
-  }
 
-  isLegalMove(x, y, color) {
-    return true;
-  }
-}
+    /* Figure out the color of the given user */
+    let viewer = connecticut.Color.BLACK
 
-Game.Color = {
-  WHITE:  1,
-  EMPTY:  0,
-  BLACK: -1
+    if (user == this.player2) {
+      viewer = connecticut.Color.WHITE
+    }
+
+    let squares = this.game.squares
+
+    /* Send the sync event with the proper data to the client */
+    user.emit('sync', {
+      squares: squares,
+      viewer: viewer
+    })
+  }
 }

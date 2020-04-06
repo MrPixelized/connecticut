@@ -7,7 +7,7 @@ class ConnecticutBoard extends HTMLElement {
     this.tileTexture = 'assets/tiles/brown_tile.svg'
     this.boardTexture = 'assets/boards/default_board.jpg'
     this.size = 13
-    this.viewer = Color.WHITE
+    this.viewer = Color.BLACK
     this.blackTexture = 'assets/stones/default_black.svg'
     this.whiteTexture = 'assets/stones/default_white.svg'
 
@@ -17,7 +17,7 @@ class ConnecticutBoard extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['size', 'boardtexture', 'tiletexture', 'viewer']
+    return ['size', 'boardtexture', 'tiletexture', 'viewer', 'gameid']
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -30,6 +30,9 @@ class ConnecticutBoard extends HTMLElement {
         break
       case 'tiletexture':
         this.tileTexture = newValue
+        break
+      case 'gameid':
+        this.gameid = newValue
         break
       case 'viewer':
         if (newValue == "white") {
@@ -127,6 +130,17 @@ class ConnecticutBoard extends HTMLElement {
    */
   setStone(x, y, color = Color.EMPTY) {
     this.squares[x][y].setStone(color)
+  }
+
+  /* Takes in an array of squares (-1, 0, 1)
+   * and updates the squares array accordingly
+   */
+  syncSquares(squares) {
+    for (var x = 0; x < this.size; x++) {
+      for (var y = 0; y < this.size; y++) {
+        this.setStone(x, y, squares[x][y])
+      }
+    }
   }
 }
 

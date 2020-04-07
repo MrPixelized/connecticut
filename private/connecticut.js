@@ -60,35 +60,69 @@ class Game {
     if (x == 0 || y == 0 || x == this.size - 1 || y == this.size - 1) {
       return true
     }
+
+    /* Loop through all legitimately linked squares */
+    for (let [px, py] of this.linkedSquares(x, y, color)) {
+      if (this.squares[px][py] == color) {
+        return true
+      }
+    }
+
+    return false
   }
 
   /* Tests if the connection between x1, y1 and x2, y2 is broken by -1*color */
   isBroken(x1, y1, x2, y2, color) {
-    // var dx = x1 - x2
-    // var dy = y1 - y2
-    //
-    // var c = []
-    //
-    // for (let x = dx; x != 0; x -= Math.sign(dx)) {
-    //   for (let y = dy; y != 0; y -= Math.sign(dy)) {
-    //     if (this.squares[x2 + x][y2 + y] == -1*color) {
-    //       c.push()
-    //     }
-    //   }
-    // }
-    //
-    // if (dx > 1) {
-    //   x
-    // }
+    /* We always want x1 and y1 to be smaller than their counterparts */
+    if (x1 > x2) {
+      x1 = x2 + (x2 = x1, 0)
+    }
+
+    if (y1 > y2) {
+      y1 = y2 + (y2 = y1, 0)
+    }
+
+    /* Make lists to keep track of the coordinates of found obstructions */
+    var xs = []
+    var ys = []
+
+    var opposite = -1 * color
+
+    /* Loop through all squares in the rectangle with
+     * (x1, y1) and (x2, y2) as its corners
+     */
+    for (let x = x1; x <= x2; x++) {
+      for (let y = y1; y <= y2; y++) {
+        /* If there's a stone that could interfere with a connection,
+         * store its x and y coordinates appropriately
+         */
+        if (this.squares[x][y] == opposite) {
+          xs.push(x)
+          ys.push(y)
+        }
+      }
+    }
+
+    /* Find the long axis of this rectangle.
+     * If all rows of the rectangle across this axis contain an
+     * obtrusive stone, the connection is broken
+     */
+    if (x2 - x1 > 1) {
+      return !ys.every((val, i, arr) => val == arr[0])
+    }
+
+    return !xs.every((val, i, arr) => val == arr[0])
   }
 
   /* Get all squares to which a stone on x, y of color are linked,
    * with no opposing stones breaking the connections
    */
   * linkedSquares(x, y, color) {
-    for ([potentialX, potentialY] of this.reachedSquares(x, y)) {
-      if (!isBroken(potentialX, potentialY, x, y, color)) {
-        yield [potentialX, potentialY]
+    /* Loop through all squares that could be linked */
+    for (let [px, py] of this.reachedSquares(x, y)) {
+      /* If the connection is not broken, return the square */
+      if (!this.isBroken(x, y, px, py, color)) {
+        yield [px, py]
       }
     }
   }
@@ -97,20 +131,29 @@ class Game {
    * a knight's move away from the given square
    */
   * reachedSquares(x, y) {
+    var px
+    var py
+
     /* Get the set of four knight's moves along the y axis */
-    for (a of (-1, 1)) {
-      for (b of (-2, 2)) {
-        let x1 = x + a
-        let y1 = y + b
-        let x2 = x + b
-        let y2 = y + a
+    for (var dx of [-1, 1]) {
+      for (var dy of [-2, 2]) {
+        px = x + dx
+        py = y + dy
 
-        if (0 < x1 && x1 < this.size && 0 < y1 && y1 < this.size) {
-          yield [i, j]
+        if (px >= 0 && px < this.size && py >= 0 && py < this.size) {
+          yield [px, py]
         }
+      }
+    }
 
-        if (0 < x2 && x2 < this.size && 0 < y2 && y2 < this.size) {
-          yield [k, l]
+    /* Get the set of four knight's moves along the x axis */
+    for (var dy of [-1, 1]) {
+      for (var dx of [-2, 2]) {
+        px = x + dx
+        py = y + dy
+
+        if (px >= 0 && px < this.size && py >= 0 && py < this.size) {
+          yield [px, py]
         }
       }
     }

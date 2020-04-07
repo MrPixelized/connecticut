@@ -61,7 +61,9 @@ class Square extends HTMLElement {
       return this.parentBoard.blackTexture
     }
 
-    return this.parentBoard.whiteTexture
+    if (this.color == Color.WHITE || this.parentBoard.viewer == Color.WHITE) {
+      return this.parentBoard.whiteTexture
+    }
   }
 
   connectedCallback() {

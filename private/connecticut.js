@@ -63,6 +63,9 @@ class Game {
 
     /* Loop through all legitimately linked squares */
     for (let [px, py] of this.linkedSquares(x, y, color)) {
+      /* If there is a link to another stone of the same color,
+       * the move is legal
+       */
       if (this.squares[px][py] == color) {
         return true
       }
@@ -75,11 +78,11 @@ class Game {
   isBroken(x1, y1, x2, y2, color) {
     /* We always want x1 and y1 to be smaller than their counterparts */
     if (x1 > x2) {
-      x1 = x2 + (x2 = x1, 0)
+      [x1, x2] = [x2, x1]
     }
 
     if (y1 > y2) {
-      y1 = y2 + (y2 = y1, 0)
+      [y1, y2] = [y2, y1]
     }
 
     /* Make lists to keep track of the coordinates of found obstructions */

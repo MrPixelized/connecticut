@@ -35,12 +35,12 @@ class ConnecticutBoard extends HTMLElement {
         this.gameid = newValue
         break
       case 'viewer':
-        if (newValue == "white") {
+        if (newValue == 'white') {
           this.viewer = Color.WHITE
-        } else if (newValue == "black") {
+        } else if (newValue == 'black') {
           this.viewer = Color.BLACK
         } else {
-          throw new Error("Viewer must be one of: 'black', 'white'")
+          this.viewer = 'viewer'
         }
         break
     }

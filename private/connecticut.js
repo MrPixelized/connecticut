@@ -55,13 +55,41 @@ class Game {
    * the given x, y are the coordinates of a newly placed stone
    */
   updateStones(x, y) {
-    var found = {}
+    this.found = {}
 
     for (let [px, py] of this.getAffected(x, y)) {
       if (this.squares[px][py] == -this.squares[x][y]) {
-        
+        this.clearUnlinkedChildren(px, py)
       }
     }
+  }
+
+  clearUnlinkedChildren(x, y) {
+    /* Mark this stone as visited */
+    this.found[x + y * this.size] = true
+
+    /* If the stone is on the edge, it will return true */
+    if (x == 0 || x == this.size - 1) {
+      return true
+    }
+
+    if (y == 0 || y == this.size - 1) {
+      return true
+    }
+
+    /* Loop through all linked stones */
+    for (let [px, py] of this.linkedStones(x, y, this.squares[x][y])) {
+      /* If a linked stone has been visited, don't examiate it */
+      if (!this.found[px + py * this.size]) {
+        if (this.clearUnlinkedChildren(px, py)) {
+          return true
+        }
+      }
+    }
+
+    /* If no children are linked to an edge, clear this stone, return false */
+    this.setStone(x, y, Color.EMPTY)
+    return false
   }
 
   /* Gets all squares that could have lost a connection because of the
@@ -191,7 +219,6 @@ class Game {
    * a knight's move away from the given square
    */
   * reachedSquares(x, y) {
-
     /* Get the set of four knight's moves along the y axis */
     for (var dx of [-1, 1]) {
       for (var dy of [-2, 2]) {

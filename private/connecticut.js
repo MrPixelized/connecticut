@@ -135,21 +135,22 @@ class Game {
           continue
         }
 
+        if (this.squares[x][y] == this.squares[px][y]) {
+          yield [px, y]
+        }
+
         if (py < 0 || this.size <= py) {
           continue
+        }
+
+        if (this.squares[x][y] == this.squares[x][py]) {
+          yield [x, py]
         }
 
         if (this.squares[x][y] == this.squares[px][py]) {
           yield [px, py]
         }
 
-        if (this.squares[x][y] == this.squares[px][y]) {
-          yield [px, y]
-        }
-
-        if (this.squares[x][y] == this.squares[x][py]) {
-          yield [x, py]
-        }
       }
     }
   }

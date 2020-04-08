@@ -96,7 +96,7 @@ class GameConnection {
       this.joinViewer(socket)
     }
 
-    this.sync()
+    this.update(socket)
   }
 
   /* Function to add a viewer to the game */
@@ -167,17 +167,19 @@ class GameConnection {
     }
 
     /* Figure out the color of the given socket */
-    let viewer = connecticut.Color.BLACK
+    let viewer = 'viewer'
 
     if (socket == this.whitePlayer) {
       viewer = connecticut.Color.WHITE
     }
 
-    let squares = this.game.squares
+    if (socket == this.blackPlayer) {
+      viewer = connecticut.Color.BLACK
+    }
 
     /* Send the sync event with the proper data to the client */
     socket.emit('sync', {
-      squares: squares,
+      squares: this.game.squares,
       viewer: viewer
     })
   }

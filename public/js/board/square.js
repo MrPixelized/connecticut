@@ -50,10 +50,6 @@ class Square extends HTMLElement {
 
   /* Returns the texture used for a stone of a specified color */
   get texture() {
-    if (this.color == Color.WHITE) {
-      return this.parentBoard.whiteTexture
-    }
-
     /* If this stone does not have a specific texture, we look for the
      * color of the board's viewer
      */
@@ -64,6 +60,8 @@ class Square extends HTMLElement {
     if (this.color == Color.WHITE || this.parentBoard.viewer == Color.WHITE) {
       return this.parentBoard.whiteTexture
     }
+
+    return ''
   }
 
   connectedCallback() {
@@ -109,6 +107,10 @@ class Square extends HTMLElement {
 
         #container[color="${Color.EMPTY}"] #overlay {
           opacity: 0;
+        }
+
+        #overlay[src=""] {
+            display: none;
         }
 
         #overlay {
@@ -159,13 +161,7 @@ class Square extends HTMLElement {
       this.parentBoard.dispatchEvent(requestMoveEvent)
     }
 
-    /* Enable the transparent hover indicator */
-		this.onmouseenter = (e) => {
-			if (this.color == Color.EMPTY) {
-				this.setStone()
-			}
-		}
-
+    /* Set the right texture for the stone */
     this.setStone()
   }
 }

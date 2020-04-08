@@ -46,7 +46,7 @@ class Game {
     }
   }
 
-  /* Tests if the given move is legal and places the stone if it is */
+  /* Set the stone at the given coordinate to the given color */
   setStone(x, y, color) {
     this.squares[x][y] = color
   }
@@ -55,15 +55,18 @@ class Game {
    * the given x, y are the coordinates of a newly placed stone
    */
   updateStones(x, y) {
-    this.found = {}
-
     for (let [px, py] of this.getAffected(x, y)) {
+      /* If the affected square is of the affected color, update it */
       if (this.squares[px][py] == -this.squares[x][y]) {
+        this.found = {}
         this.clearUnlinkedChildren(px, py)
       }
     }
   }
 
+  /* A recursive function to test if a given stone and all of its children
+   * are connected to an edge, if not, removes them
+   */
   clearUnlinkedChildren(x, y) {
     /* Mark this stone as visited */
     this.found[x + y * this.size] = true
@@ -96,18 +99,20 @@ class Game {
    * placement of the stone on x, y
    */
   * getAffected(x, y) {
+    /* Loop through the four diagonally adjecent squares */
     for (let dx of [-1, 1]) {
       for (let dy of [-1, 1]) {
         let px = x + dx
         let py = y + dy
 
-        if (0 < px && 0 < py && px < this.size -1 && py < this.size - 1) {
+        if (0 < px && 0 < py && px < this.size - 1 && py < this.size - 1) {
           yield [px, py]
         }
       }
     }
 
-		for (let d of [-2, 2]) {
+    /* Loop through the lines that cross the given coordinate */
+		for (let d of [-2, 2, -1, 1]) {
       let px = x + d
       let py = y + d
 

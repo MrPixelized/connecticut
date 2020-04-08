@@ -35,14 +35,63 @@ class Game {
     this.toPlay *= -1
   }
 
-  /* Tests if the given move is legal and places the stone if it is */
-  setStone(x, y, color) {
+  /* Function to make a move; check legality and set stones */
+  makeMove(x, y, color) {
     if (this.isLegalMove(x, y, color)) {
-      this.squares[x][y] = color
+      this.setStone(x, y, color)
+
+      this.updateStones(x, y)
 
       this.endTurn()
     }
   }
+
+  /* Tests if the given move is legal and places the stone if it is */
+  setStone(x, y, color) {
+    this.squares[x][y] = color
+  }
+
+  /* Searches through the board to capture any fallen stones,
+   * the given x, y are the coordinates of a newly placed stone
+   */
+  updateStones(x, y) {
+    var found = {}
+
+    for (let [px, py] of this.getAffected(x, y)) {
+      if (this.squares[px][py] == -this.squares[x][y]) {
+        
+      }
+    }
+  }
+
+  /* Gets all squares that could have lost a connection because of the
+   * placement of the stone on x, y
+   */
+  * getAffected(x, y) {
+    for (let dx of [-1, 1]) {
+      for (let dy of [-1, 1]) {
+        let px = x + dx
+        let py = y + dy
+
+        if (0 < px && 0 < py && px < this.size -1 && py < this.size - 1) {
+          yield [px, py]
+        }
+      }
+    }
+
+		for (let d of [-2, 2]) {
+      let px = x + d
+      let py = y + d
+
+      if (0 < px && px < this.size - 1) {
+        yield [px, y]
+      }
+
+      if (0 < py && py < this.size - 1) {
+        yield [x, py]
+      }
+    }
+	}
 
   /* Tests if the given move is legal */
   isLegalMove(x, y, color) {
@@ -114,6 +163,9 @@ class Game {
     return !xs.every((val, i, arr) => val == arr[0])
   }
 
+  /* Returns all stones of the given color, a knights move away from
+   * the given coordinates, that can be reached according to connecticut rules
+   */
   * linkedStones(x, y, color) {
     for (let [px, py] of this.linkedSquares(x, y, color)) {
       if (this.squares[px][py] == color) {
@@ -139,14 +191,12 @@ class Game {
    * a knight's move away from the given square
    */
   * reachedSquares(x, y) {
-    var px
-    var py
 
     /* Get the set of four knight's moves along the y axis */
     for (var dx of [-1, 1]) {
       for (var dy of [-2, 2]) {
-        px = x + dx
-        py = y + dy
+        let px = x + dx
+        let py = y + dy
 
         if (px >= 0 && px < this.size && py >= 0 && py < this.size) {
           yield [px, py]
@@ -157,8 +207,8 @@ class Game {
     /* Get the set of four knight's moves along the x axis */
     for (var dy of [-1, 1]) {
       for (var dx of [-2, 2]) {
-        px = x + dx
-        py = y + dy
+        let px = x + dx
+        let py = y + dy
 
         if (px >= 0 && px < this.size && py >= 0 && py < this.size) {
           yield [px, py]

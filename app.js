@@ -87,7 +87,7 @@ class GameConnection {
 
   /* Event handler for move made */
   makeMove(socket, x, y, color) {
-    this.game.setStone(x, y, color)
+    this.game.makeMove(x, y, color)
 
     /* Synchronize the new board with all players and viewers */
     this.sync()

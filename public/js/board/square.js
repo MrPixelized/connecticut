@@ -17,10 +17,10 @@ class Square extends HTMLElement {
   attributeChangedCallback(name, oldValue, newValue) {
     switch (name) {
       case 'x':
-        this.x = newValue
+        this.x = parseInt(newValue)
         break
       case 'y':
-        this.y = newValue
+        this.y = parseInt(newValue)
         break
     }
   }

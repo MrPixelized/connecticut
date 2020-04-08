@@ -21,8 +21,8 @@ for (board of document.getElementsByTagName('connecticut-board')) {
   board.addEventListener('requestmove', (e) => {
 		/* Send move data */
 		board.socket.emit('requestmove', {
-			x: parseInt(e.detail.x),
-			y: parseInt(e.detail.y)
+			x: e.detail.x,
+			y: e.detail.y
 		})
   })
 }

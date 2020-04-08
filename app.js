@@ -30,13 +30,19 @@ app.get('/play', (req, res) => {
   /* The player might want to just view the game */
   if (action == 'view') {
     res.render('play', {gameId: gameId, viewer: 'viewer'})
-  } else if (action == 'join') {
+    return
+  }
+
+  if (action == 'join') {
     /* If the game does not yet exist, create it */
     if (!GameConnection.gamesInPlay[gameId]) {
       GameConnection.gamesInPlay[gameId] = new GameConnection(gameId)
+    }
 
+    /* Determine which color the player should be viewing the board as */
+    if (!GameConnection.gamesInPlay[gameId].blackPlayer) {
       res.render('play', {gameId: gameId, viewer: 'black'})
-    } else {
+    } else if (!GameConnection.gamesInPlay[gameId].whitePlayer) {
       res.render('play', {gameId: gameId, viewer: 'white'})
     }
   }
@@ -122,7 +128,7 @@ class GameConnection {
     })
 
     /* Handle disconnected event */
-    socket.on('disconnected', () => {
+    socket.on('disconnect', () => {
       this.blackPlayer = null
     })
   }
@@ -145,7 +151,7 @@ class GameConnection {
     })
 
     /* Handle disconnected event */
-    socket.on('disconnected', () => {
+    socket.on('disconnect', () => {
       this.whitePlayer = null
     })
   }

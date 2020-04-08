@@ -61,14 +61,11 @@ class Game {
       return true
     }
 
-    /* Loop through all legitimately linked squares */
-    for (let [px, py] of this.linkedSquares(x, y, color)) {
-      /* If there is a link to another stone of the same color,
-       * the move is legal
-       */
-      if (this.squares[px][py] == color) {
-        return true
-      }
+    /* If there is a link to another stone of the same color,
+    * the move is legal
+    */
+    for (let square of this.linkedStones(x, y, color)) {
+      return true
     }
 
     return false
@@ -115,6 +112,14 @@ class Game {
     }
 
     return !xs.every((val, i, arr) => val == arr[0])
+  }
+
+  * linkedStones(x, y, color) {
+    for (let [px, py] of this.linkedSquares(x, y, color)) {
+      if (this.squares[px][py] == color) {
+        yield [px, py]
+      }
+    }
   }
 
   /* Get all squares to which a stone on x, y of color are linked,

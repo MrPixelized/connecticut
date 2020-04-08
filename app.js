@@ -85,11 +85,17 @@ class GameConnection {
     this.game = new connecticut.Game()
   }
 
-  /* Event handler for move made */
-  makeMove(socket, x, y, color) {
-    this.game.makeMove(x, y, color)
+  /* Event handler for black move made */
+  makeBlackMove(x, y) {
+    this.game.makeMove(x, y, connecticut.Color.BLACK)
 
-    /* Synchronize the new board with all players and viewers */
+    this.sync()
+  }
+
+  /* Event handler for white move made */
+  makeWhiteMove(x, y) {
+    this.game.makeMove(x, y, connecticut.Color.WHITE)
+
     this.sync()
   }
 
@@ -124,7 +130,7 @@ class GameConnection {
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
-      this.makeMove(socket, move.x, move.y, connecticut.Color.BLACK)
+      this.makeBlackMove(move.x, move.y)
     })
 
     /* Handle disconnected event */
@@ -147,7 +153,7 @@ class GameConnection {
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
-      this.makeMove(socket, move.x, move.y, connecticut.Color.WHITE)
+      this.makeWhiteMove(move.x, move.y)
     })
 
     /* Handle disconnected event */
@@ -186,7 +192,8 @@ class GameConnection {
     /* Send the sync event with the proper data to the client */
     socket.emit('sync', {
       squares: this.game.squares,
-      viewer: viewer
+      viewer: viewer,
+      winner: this.game.winner
     })
   }
 }

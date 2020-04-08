@@ -150,7 +150,6 @@ class Game {
         if (this.squares[x][y] == this.squares[px][py]) {
           yield [px, py]
         }
-
       }
     }
   }

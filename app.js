@@ -27,12 +27,7 @@ app.get('/play', (req, res) => {
   var gameId = req.query.gameId
   var action = req.query.action
 
-  /* The player might want to just view the game */
-  if (action == 'view') {
-    res.render('play', {gameId: gameId, viewer: 'viewer'})
-    return
-  }
-
+  /* The player wants to join the game */
   if (action == 'join') {
     /* If the game does not yet exist, create it */
     if (!GameConnection.gamesInPlay[gameId]) {
@@ -42,10 +37,15 @@ app.get('/play', (req, res) => {
     /* Determine which color the player should be viewing the board as */
     if (!GameConnection.gamesInPlay[gameId].blackPlayer) {
       res.render('play', {gameId: gameId, viewer: 'black'})
+      return
     } else if (!GameConnection.gamesInPlay[gameId].whitePlayer) {
       res.render('play', {gameId: gameId, viewer: 'white'})
+      return
     }
   }
+
+  /* In any other case, the player will join as a viewer */
+  res.render('play', {gameId: gameId, viewer: 'viewer'})
 })
 
 /* Set up high-level event for incoming connections */

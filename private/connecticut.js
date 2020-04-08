@@ -5,6 +5,14 @@ Color = {
   BLACK: -1
 }
 
+/* A nicer interface for cardinal directions */
+Walls = {
+  NORTH: 0,
+  EAST: 1,
+  SOUTH: 2,
+  WEST: 3
+}
+
 /* A class to contain a connecticut game state:
  * which side is to move, how large the board is, what the position looks like
  * timing information etc.
@@ -15,6 +23,8 @@ class Game {
     this.toPlay = Color.BLACK
 
     this.size = boardSize
+
+    this.winner = Color.EMPTY
 
     /* Create a squares array to keep track of the game's state */
     this.squares = []
@@ -42,7 +52,105 @@ class Game {
 
       this.updateStones(x, y)
 
+      this.winCondition(x, y)
+
       this.endTurn()
+    }
+  }
+
+  /* Searches the board, starting at (x, y), to see if a player has won */
+  winCondition(x, y) {
+    this.found = {}
+
+    /* Variables to keep track of to what walls this stone is connected */
+    var north = false
+    var south = false
+    var east = false
+    var west = false
+
+    for (let connection of this.wallConnections(x, y)) {
+      if (connection == Walls.NORTH) {
+        north = true
+      }
+
+      if (connection == Walls.SOUTH) {
+        south = true
+      }
+
+      if (connection == Walls.EAST) {
+        east = true
+      }
+
+      if (connection == Walls.WEST) {
+        west = true
+      }
+    }
+
+    /* If the stone is connected to two opposite sides, the player has won */
+    if (north && south || east && west) {
+      this.winner = this.toPlay
+    }
+  }
+
+  /* Yields what connections to what walls the given square has */
+  * wallConnections(x, y) {
+    this.found[[x, y]] = true
+
+    /* Yield the proper connection if a stone is on an edge */
+    if (x == 0) {
+      yield Walls.WEST
+    }
+
+    if (x == this.size - 1) {
+      yield Walls.EAST
+    }
+
+    if (y == 0) {
+      yield Walls.NORTH
+    }
+
+    if (y == this.size - 1) {
+      yield Walls.SOUTH
+    }
+
+    for (let [px, py] of this.getBridged(x, y)) {
+      if (!this.found[[px, py]]) {
+        for (let wallConnection of this.wallConnections(px, py)) {
+          yield wallConnection
+        }
+      }
+    }
+  }
+
+  /* Yields all stones which could be direct neighbors
+   * in a bridge involving the given stone
+   */
+  * getBridged(x, y) {
+    for (let dx of [-1, 1]) {
+      for (let dy of [-1, 1]) {
+        let px = x + dx
+        let py = y + dy
+
+        if (px < 0 || this.size <= px) {
+          continue
+        }
+
+        if (py < 0 || this.size <= py) {
+          continue
+        }
+
+        if (this.squares[x][y] == this.squares[px][py]) {
+          yield [px, py]
+        }
+
+        if (this.squares[x][y] == this.squares[px][y]) {
+          yield [px, y]
+        }
+
+        if (this.squares[x][y] == this.squares[x][py]) {
+          yield [x, py]
+        }
+      }
     }
   }
 
@@ -69,7 +177,7 @@ class Game {
    */
   clearUnlinkedChildren(x, y) {
     /* Mark this stone as visited */
-    this.found[x + y * this.size] = true
+    this.found[[x, y]] = true
 
     /* If the stone is on the edge, it will return true */
     if (x == 0 || x == this.size - 1) {
@@ -83,7 +191,7 @@ class Game {
     /* Loop through all linked stones */
     for (let [px, py] of this.linkedStones(x, y, this.squares[x][y])) {
       /* If a linked stone has been visited, don't examiate it */
-      if (!this.found[px + py * this.size]) {
+      if (!this.found[[px, py]]) {
         if (this.clearUnlinkedChildren(px, py)) {
           return true
         }

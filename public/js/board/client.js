@@ -9,9 +9,10 @@ for (board of document.getElementsByTagName('connecticut-board')) {
 		board.viewer = boardState.viewer
 	})
 
-	/* Notify the server of a new user to join the board */
+	/* Notify the server of a player or viewer on the board */
 	board.socket.emit('join', {
 		gameId: board.gameid,
+		viewer: board.viewer
 	})
 
 	/* Add an event to the board that sends a message to the server when a
@@ -21,9 +22,7 @@ for (board of document.getElementsByTagName('connecticut-board')) {
 		/* Send move data */
 		board.socket.emit('requestmove', {
 			x: parseInt(e.detail.x),
-			y: parseInt(e.detail.y),
-			color: parseInt(board.viewer),
-			id: parseInt(board.gameId)
+			y: parseInt(e.detail.y)
 		})
   })
 }

@@ -110,7 +110,7 @@ class GameConnection {
      * otherwise let them join as a viewer
      */
     if (this.blackPlayer) {
-      joinViewer(socket)
+      this.joinViewer(socket)
       return
     }
 
@@ -133,7 +133,7 @@ class GameConnection {
      * otherwise let them join as a viewer
      */
     if (this.whitePlayer) {
-      joinViewer(socket)
+      this.joinViewer(socket)
       return
     }
 

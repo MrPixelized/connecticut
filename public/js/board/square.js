@@ -50,17 +50,27 @@ class Square extends HTMLElement {
 
   /* Returns the texture used for a stone of a specified color */
   get texture() {
-    /* If this stone does not have a specific texture, we look for the
-     * color of the board's viewer
-     */
-    if (this.color == Color.BLACK || this.parentBoard.viewer == Color.BLACK) {
+    /* Return the proper texture to be displayed for the stone color */
+    if (this.color == Color.BLACK) {
       return this.parentBoard.blackTexture
     }
 
-    if (this.color == Color.WHITE || this.parentBoard.viewer == Color.WHITE) {
+    if (this.color == Color.WHITE) {
       return this.parentBoard.whiteTexture
     }
 
+    /* If this square is empty, we look for the color of the board's viewer
+     * to enable the transparent overlay on hover
+     */
+    if (this.parentBoard.viewer == Color.BLACK) {
+      return this.parentBoard.blackTexture
+    }
+
+    if (this.parentBoard.viewer == Color.WHITE) {
+      return this.parentBoard.whiteTexture
+    }
+
+    /* If the board's viewer is just a viewer, no overlay is displayed */
     return ''
   }
 

@@ -167,15 +167,29 @@ class Game {
       /* If the affected square is of the affected color, update it */
       if (this.squares[px][py] == -this.squares[x][y]) {
         this.found = {}
-        this.clearUnlinkedChildren(px, py)
+
+        if (!this.isEdgeLinked(px, py)) {
+          this.clearGroup(px, py)
+        }
       }
     }
   }
 
-  /* A recursive function to test if a given stone and all of its children
-   * are connected to an edge, if not, removes them
+  /* Recursively removes the given stone and all of its connections */
+  clearGroup(x, y) {
+    let groupColor = this.squares[x][y]
+
+    this.setStone(x, y, Color.EMPTY)
+
+    for (let [px, py] of this.linkedStones(x, y, groupColor)) {
+        this.clearGroup(px, py)
+    }
+  }
+
+  /* A recursive fun    this.setStone(x, y, Color.EMPTY)ction to test if a given stone and all of its children
+   * are connected to an edge
    */
-  clearUnlinkedChildren(x, y) {
+  isEdgeLinked(x, y) {
     /* Mark this stone as visited */
     this.found[[x, y]] = true
 
@@ -192,14 +206,13 @@ class Game {
     for (let [px, py] of this.linkedStones(x, y, this.squares[x][y])) {
       /* If a linked stone has been visited, don't examiate it */
       if (!this.found[[px, py]]) {
-        if (this.clearUnlinkedChildren(px, py)) {
+        if (this.isEdgeLinked(px, py)) {
           return true
         }
       }
     }
 
-    /* If no children are linked to an edge, clear this stone, return false */
-    this.setStone(x, y, Color.EMPTY)
+    /* If no children are linked to an edge, return false */
     return false
   }
 

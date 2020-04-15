@@ -1,4 +1,4 @@
-#newGame #clockSettings {
+#clockSettings {
   background-color: #525252;
   border-style: dotted;
   border-width: 0;
@@ -6,18 +6,42 @@
   border-bottom-width: 1px;
 }
 
-#newGame div {
-  padding: 1em;
+#clockSettings input {
+  display: inline-block;
+  width: calc(100%);
+  margin: auto;
+}
+
+#clockSettings {
+  text-align: left;
+}
+
+#clockSettings h3 {
+  text-align: center;
+  margin-top: 0;
+}
+
+#variantSelection {
+  background: linear-gradient(to top, #525252 -75%, transparent 50%);
 }
 
 #joinColor button {
   margin: .5em;
 }
 
+#newGame div {
+  padding: 1em;
+}
+
 #newGame {
   margin: auto;
-  width: 16%;
+  width: 20%;
   border-width: 1px;
   border-style: solid;
   border-radius: 1em;
+}
+
+#newGame h2 {
+  margin-bottom: 0;
+
 }

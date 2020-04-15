@@ -3,7 +3,7 @@
   <head>
     <title>Connecticut Online</title>
 
-    <link href="css/master.css" rel="stylesheet" type="text/css" />
+    <link href="css/master.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="js/games/games.js"></script>
   </head>
   <body>
@@ -11,11 +11,11 @@
 
     <div id="container">
       <p>Welcome to connecticut online! To join a game, you can browse through the list below. If you'd rather create a new game... Well, the big button down there can't be missed!</p>
-      <form method="GET" action="/play">
-        <input type="text" name="gameId" />
-        <button type="submit" name="action" value="join">Join game</button>
-        <button type="submit" name="action" value="view">Watch game</button>
-      </form>
+      <button id="newGame">New game</button>
+    </div>
+
+    <div id="newGamePopup">
+      <%- include ('new-game.ejs') %>
     </div>
   </body>
 </html>

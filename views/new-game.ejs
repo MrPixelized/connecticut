@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Connecticut Online</title>
+
+    <link   href="css/master.css"     rel="stylesheet">
+    <link   href="/css/new-game.css"  rel="stylesheet">
+    <script src="js/games/games.js"   type="text/javascript"></script>
+  </head>
+  <body>
+    <div id="container">
+      <h1>Create a game</h1>
+      <form method="POST" action="/play" id="newGameForm">
+        Variant
+        <select id="variant" name="variant">
+          <option value="standard">Standard</option>
+          <option value="testing" disabled>Opponent stones fall first</option>
+        </select>
+        <hr>
+
+        <label for="timerWhite">White timer settings</label>
+        <input name="timerWhite" type="number" disabled="disabled" id="timerWhite"></input>
+        <br>
+
+        <button type="submit" name="action" value="joinBlack">Join black</button>
+        <button type="submit" name="action" value="joinWhite">Join white</button>
+      </form>
+    </div>
+  </body>
+</html>

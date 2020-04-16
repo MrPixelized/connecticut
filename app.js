@@ -6,12 +6,20 @@ const app = express()
 const connecticut = require('./private/connecticut.js')
 const helmet = require('helmet')
 const randomWords = require('random-words')
+const session = require('express-session')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')
 
 /* Make the server use helmet for added security */
 app.use(helmet())
+
+/* Enable the use of sessions */
+app.use(session({
+  secret: 'lkast443jh5345sdkjhsdg83234!@#325',
+  resave: true,
+  saveUninitialized: true
+}))
 
 /* Add middleware to parse post requests */
 app.use(express.urlencoded({extended: true}))

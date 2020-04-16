@@ -6,7 +6,12 @@ const app = express()
 const connecticut = require('./private/connecticut.js')
 const helmet = require('helmet')
 const randomWords = require('random-words')
-const session = require('express-session')
+const session = require('express-session')({
+  secret: 'lkast443jh5345sdkjhsdg83234!@#325',
+  resave: true,
+  saveUninitialized: true
+})
+const sharedsession = require('express-socket.io-session')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')
@@ -15,11 +20,7 @@ app.set('view engine', 'ejs')
 app.use(helmet())
 
 /* Enable the use of sessions */
-app.use(session({
-  secret: 'lkast443jh5345sdkjhsdg83234!@#325',
-  resave: true,
-  saveUninitialized: true
-}))
+app.use(session)
 
 /* Add middleware to parse post requests */
 app.use(express.urlencoded({extended: true}))
@@ -30,6 +31,10 @@ app.use(express.static('public'))
 server = app.listen(3000)
 
 const io = require('socket.io')(server)
+
+io.use(sharedsession(session, {
+    autoSave:true
+}))
 
 /* Handles for routes */
 app.get('/', (req, res) => {
@@ -66,8 +71,8 @@ app.get('/play/:gameId', (req, res) => {
   game = GameConnection.gamesInPlay[gameId]
 
   /* Make sure the join request is valid */
-  if (viewer == 'black' && game.blackPlayer ||
-      viewer == 'white' && game.whitePlayer) {
+  if (viewer == 'black' && game.blackPlayer.sessionID ||
+      viewer == 'white' && game.whitePlayer.sessionID) {
     res.redirect('/view/' + gameId.toString())
     return
   }
@@ -84,6 +89,12 @@ app.get('/play/:gameId', (req, res) => {
     }
   }
 
+  if (viewer == 'black') {
+    game.join(req, connecticut.Color.BLACK)
+  } else if (viewer == 'white') {
+    game.join(req, connecticut.Color.WHITE)
+  }
+
   res.render('play', {gameId: gameId, viewer: viewer})
 })
 
@@ -95,6 +106,7 @@ app.get('/view/:gameId', (req, res) => {
 io.on('connection', (socket) => {
   /* A connected socket makes a request to join a game */
   socket.on('join', (game) => {
+    sessionID = socket.handshake.session.id
     id = game.gameId
 
     /* If the game does not exist, it cannot be joined */
@@ -103,7 +115,7 @@ io.on('connection', (socket) => {
     }
 
     /* Join the game */
-    GameConnection.gamesInPlay[id].join(socket, game.viewer)
+    GameConnection.gamesInPlay[id].connect(sessionID, socket, game.viewer)
   })
 })
 
@@ -131,8 +143,8 @@ class GameConnection {
     this.gameId = gameId
 
     /* Set default values */
-    this.blackPlayer = null
-    this.whitePlayer = null
+    this.blackPlayer = {}
+    this.whitePlayer = {}
 
     /* Intialize a list to contain all of the connections viewing the game */
     this.viewers = []
@@ -154,34 +166,44 @@ class GameConnection {
     this.sync()
   }
 
-  join(socket, viewer) {
+  /* Match the given session to the given color */
+  join(req, viewer) {
     if (viewer == connecticut.Color.BLACK) {
-      this.joinBlack(socket)
+      if (!this.blackPlayer.sessionID) {
+        this.blackPlayer.sessionID = req.sessionID
+      }
     } else if (viewer == connecticut.Color.WHITE) {
-      this.joinWhite(socket)
+      if (!this.whitePlayer.sessionID) {
+        this.whitePlayer.sessionID = req.sessionID
+      }
+    }
+  }
+
+  /* Connect the given socket to the player of the given color */
+  connect(sessionID, socket, viewer) {
+    if (viewer == connecticut.Color.BLACK) {
+      if (sessionID = this.blackPlayer.sessionID) {
+        this.connectBlack(socket)
+      }
+    } else if (viewer == connecticut.Color.WHITE) {
+      if (sessionID = this.whitePlayer.sessionID) {
+        this.connectWhite(socket)
+      }
     } else {
-      this.joinViewer(socket)
+      this.connectViewer(socket)
     }
 
     this.update(socket)
   }
 
   /* Function to add a viewer to the game */
-  joinViewer(socket) {
+  connectViewer(socket) {
     this.viewers.push(socket)
   }
 
   /* Function to add a black player to the game */
-  joinBlack(socket) {
-    /* If there is no black player yet, make the given socket the black player,
-     * otherwise let them join as a viewer
-     */
-    if (this.blackPlayer) {
-      this.joinViewer(socket)
-      return
-    }
-
-    this.blackPlayer = socket
+  connectBlack(socket) {
+    this.blackPlayer.socket = socket
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
@@ -190,21 +212,13 @@ class GameConnection {
 
     /* Handle disconnected event */
     socket.on('disconnect', () => {
-      this.blackPlayer = null
+      this.blackPlayer.socket = null
     })
   }
 
   /* Function to add a white player to the game */
-  joinWhite(socket) {
-    /* If there is no black player yet, make the given socket the black player,
-     * otherwise let them join as a viewer
-     */
-    if (this.whitePlayer) {
-      this.joinViewer(socket)
-      return
-    }
-
-    this.whitePlayer = socket
+  connectWhite(socket) {
+    this.whitePlayer.socket = socket
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
@@ -213,14 +227,14 @@ class GameConnection {
 
     /* Handle disconnected event */
     socket.on('disconnect', () => {
-      this.whitePlayer = null
+      this.whitePlayer.socket = null
     })
   }
 
   /* Synchronize the board between all viewers and players */
   sync() {
-    this.update(this.blackPlayer)
-    this.update(this.whitePlayer)
+    this.update(this.blackPlayer.socket)
+    this.update(this.whitePlayer.socket)
 
     for (var viewer of this.viewers) {
       this.update(viewer)
@@ -236,11 +250,11 @@ class GameConnection {
     /* Figure out the color of the given socket */
     let viewer = 'viewer'
 
-    if (socket == this.whitePlayer) {
+    if (socket == this.whitePlayer.socket) {
       viewer = connecticut.Color.WHITE
     }
 
-    if (socket == this.blackPlayer) {
+    if (socket == this.blackPlayer.socket) {
       viewer = connecticut.Color.BLACK
     }
 

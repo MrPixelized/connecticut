@@ -1,6 +1,5 @@
 /* Add the client functionality to all boards on the page */
 for (board of document.getElementsByTagName('connecticut-board')) {
-	console.log(document.cookie)
 	/* Each board gets a unique socket for server communication */
 	board.socket = io.connect()
 

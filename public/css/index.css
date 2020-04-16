@@ -13,7 +13,7 @@
 }
 
 #clockSettings {
-  background-color: #525252;
+  background-color: #252525;
 
   border-style: dotted;
   border-width: 0;
@@ -21,7 +21,15 @@
   border-bottom-width: 1px;
 }
 
-#clockSettings input {
+#boardSize {
+  background-color: #252525;
+
+  border-style: dotted;
+  border-width: 0;
+  border-top-width: 1px;
+}
+
+#clockSettings input, #boardSize input {
   display: inline-block;
   width: calc(100%);
   margin: auto;

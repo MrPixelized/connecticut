@@ -5,8 +5,9 @@ for (board of document.getElementsByTagName('connecticut-board')) {
 
 	/* Make sure the board listens for whole board syncs from the server */
 	board.socket.on('sync', (boardState) => {
-		board.syncSquares(boardState.squares)
 		board.viewer = boardState.viewer
+		
+		board.syncSquares(boardState.squares)
 
 		if (boardState.winner == 0) {
 			return

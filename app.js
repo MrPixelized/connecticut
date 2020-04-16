@@ -184,7 +184,7 @@ class GameConnection {
       this.connectViewer(socket)
     }
 
-    this.update(socket)
+    this.sync()
   }
 
   /* Function to add a viewer to the game */

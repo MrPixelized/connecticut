@@ -27,8 +27,7 @@ for (board of document.getElementsByTagName('connecticut-board')) {
 
 	/* Notify the server of a player or viewer on the board */
 	board.socket.emit('join', {
-		gameId: board.gameid,
-		viewer: board.viewer
+		gameId: board.gameid
 	})
 
 	/* Add an event to the board that sends a message to the server when a

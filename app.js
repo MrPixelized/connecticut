@@ -51,12 +51,14 @@ app.post('/newgame', (req, res) => {
 
     /* Determine which color the player should be viewing the board as */
     if (action == 'joinBlack') {
-      res.redirect('/play/' + game.gameId.toString() + '?viewer=black')
+      game.join(req, connecticut.Color.BLACK)
+      res.redirect('/play/' + game.gameId.toString())
       return
     }
 
     if (action == 'joinWhite') {
-      res.redirect('/play/' + game.gameId.toString() + '?viewer=white')
+      game.join(req, connecticut.Color.WHITE)
+      res.redirect('/play/' + game.gameId.toString())
       return
     }
   }
@@ -66,36 +68,30 @@ app.post('/newgame', (req, res) => {
 
 app.get('/play/:gameId', (req, res) => {
   var gameId = req.params.gameId
-  var viewer = req.query.viewer
-
   game = GameConnection.gamesInPlay[gameId]
 
-  /* Make sure the join request is valid */
-  if (viewer == 'black' && game.blackPlayer.sessionID ||
-      viewer == 'white' && game.whitePlayer.sessionID) {
+  /* Figure out if the player is already in the game or must join in */
+  if (game.blackPlayer.sessionID == req.sessionID) {
+    res.render('play', {gameId: gameId})
+    return
+  }
+
+  if (game.whitePlayer.sessionID == req.sessionID) {
+    res.render('play', {gameId: gameId})
+    return
+  }
+
+  /* If the player must join in, select the right color or join as a viewer */
+  if (!game.blackPlayer.sessionID) {
+    game.join(req, connecticut.Color.BLACK)
+  } else if (!game.whitePlayer.sessionID) {
+    game.join(req, connecticut.Color.WHITE)
+  } else {
     res.redirect('/view/' + gameId.toString())
     return
   }
 
-  /* If no viewer is specified, pick the right one */
-  if (!viewer) {
-    if (!game.blackPlayer) {
-      viewer = 'black'
-    } else if (!game.whitePlayer) {
-      viewer = 'white'
-    } else {
-      res.redirect('/view/' + gameId.toString())
-      return
-    }
-  }
-
-  if (viewer == 'black') {
-    game.join(req, connecticut.Color.BLACK)
-  } else if (viewer == 'white') {
-    game.join(req, connecticut.Color.WHITE)
-  }
-
-  res.render('play', {gameId: gameId, viewer: viewer})
+  res.render('play', {gameId: gameId})
 })
 
 app.get('/view/:gameId', (req, res) => {
@@ -107,15 +103,14 @@ io.on('connection', (socket) => {
   /* A connected socket makes a request to join a game */
   socket.on('join', (game) => {
     sessionID = socket.handshake.session.id
-    id = game.gameId
 
     /* If the game does not exist, it cannot be joined */
-    if (!GameConnection.gamesInPlay[id]) {
+    if (!GameConnection.gamesInPlay[game.gameId]) {
       return
     }
 
     /* Join the game */
-    GameConnection.gamesInPlay[id].connect(sessionID, socket, game.viewer)
+    GameConnection.gamesInPlay[game.gameId].connect(sessionID, socket)
   })
 })
 
@@ -180,15 +175,11 @@ class GameConnection {
   }
 
   /* Connect the given socket to the player of the given color */
-  connect(sessionID, socket, viewer) {
-    if (viewer == connecticut.Color.BLACK) {
-      if (sessionID = this.blackPlayer.sessionID) {
-        this.connectBlack(socket)
-      }
-    } else if (viewer == connecticut.Color.WHITE) {
-      if (sessionID = this.whitePlayer.sessionID) {
-        this.connectWhite(socket)
-      }
+  connect(sessionID, socket) {
+    if (sessionID == this.blackPlayer.sessionID) {
+      this.connectBlack(socket)
+    } else if (sessionID == this.whitePlayer.sessionID) {
+      this.connectWhite(socket)
     } else {
       this.connectViewer(socket)
     }

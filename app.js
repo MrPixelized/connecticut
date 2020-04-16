@@ -105,13 +105,17 @@ io.on('connection', (socket) => {
 class GameConnection {
   /* Shared memory to keep trac of all played games */
   static gamesInPlay = {}
-  static nextId = 0
 
   /* Creates a new game with a proper ID */
   static newGame() {
-    let nextId = GameConnection.nextId
-    GameConnection.gamesInPlay[nextId] = new GameConnection(nextId)
-    return GameConnection.gamesInPlay[GameConnection.nextId++]
+    let newId
+
+    /* Generate game id's until the id is unused */
+    do {
+      newId = randomWords({min: 2, max: 3, join: '-'})
+    } while (newId in GameConnection.gamesInPlay)
+
+    return GameConnection.gamesInPlay[newId] = new GameConnection(newId)
   }
 
   constructor(gameId) {

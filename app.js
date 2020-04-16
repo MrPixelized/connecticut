@@ -12,6 +12,10 @@ app.set('view engine', 'ejs')
 /* Make the server use helmet for added security */
 app.use(helmet())
 
+/* Add middleware to parse post requests */
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
+
 /* Make sure the app uses the 'public' directory for static content */
 app.use(express.static('public'))
 server = app.listen(3000)
@@ -23,29 +27,59 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
-app.get('/play', (req, res) => {
-  var gameId = req.query.gameId
-  var action = req.query.action
+app.post('/newgame', (req, res) => {
+  var action = req.body.action
 
   /* The player wants to join the game */
-  if (action == 'join') {
-    /* If the game does not yet exist, create it */
-    if (!GameConnection.gamesInPlay[gameId]) {
-      GameConnection.gamesInPlay[gameId] = new GameConnection(gameId)
-    }
+  if (action == 'joinBlack' || action == 'joinWhite') {
+    /* Create the game */
+    game = GameConnection.newGame()
 
     /* Determine which color the player should be viewing the board as */
-    if (!GameConnection.gamesInPlay[gameId].blackPlayer) {
-      res.render('play', {gameId: gameId, viewer: 'black'})
+    if (action == 'joinBlack') {
+      res.redirect('/play/' + game.gameId.toString() + '?viewer=black')
       return
-    } else if (!GameConnection.gamesInPlay[gameId].whitePlayer) {
-      res.render('play', {gameId: gameId, viewer: 'white'})
+    }
+
+    if (action == 'joinWhite') {
+      res.redirect('/play/' + game.gameId.toString() + '?viewer=white')
       return
     }
   }
 
-  /* In any other case, the player will join as a viewer */
-  res.render('play', {gameId: gameId, viewer: 'viewer'})
+  res.redirect('/')
+})
+
+app.get('/play/:gameId', (req, res) => {
+  var gameId = req.params.gameId
+  var viewer = req.query.viewer
+
+  game = GameConnection.gamesInPlay[gameId]
+
+  /* Make sure the join request is valid */
+  if (viewer == 'black' && game.blackPlayer ||
+      viewer == 'white' && game.whitePlayer) {
+    res.redirect('/view/' + gameId.toString())
+    return
+  }
+
+  /* If no viewer is specified, pick the right one */
+  if (!viewer) {
+    if (!game.blackPlayer) {
+      viewer = 'black'
+    } else if (!game.whitePlayer) {
+      viewer = 'white'
+    } else {
+      res.redirect('/view/' + gameId.toString())
+      return
+    }
+  }
+
+  res.render('play', {gameId: gameId, viewer: viewer})
+})
+
+app.get('/view/:gameId', (req, res) => {
+  res.render('play', {gameId: req.params.gameId, viewer: 'viewer'})
 })
 
 /* Set up high-level event for incoming connections */
@@ -70,9 +104,17 @@ io.on('connection', (socket) => {
 class GameConnection {
   /* Shared memory to keep trac of all played games */
   static gamesInPlay = {}
+  static nextId = 0
+
+  /* Creates a new game with a proper ID */
+  static newGame() {
+    let nextId = GameConnection.nextId
+    GameConnection.gamesInPlay[nextId] = new GameConnection(nextId)
+    return GameConnection.gamesInPlay[GameConnection.nextId++]
+  }
 
   constructor(gameId) {
-    /* Set the game id and viewer */
+    /* Set the game ID */
     this.gameId = gameId
 
     /* Set default values */

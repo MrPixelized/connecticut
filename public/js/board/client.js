@@ -7,6 +7,22 @@ for (board of document.getElementsByTagName('connecticut-board')) {
 	board.socket.on('sync', (boardState) => {
 		board.syncSquares(boardState.squares)
 		board.viewer = boardState.viewer
+
+		if (boardState.winner == 0) {
+			return
+		}
+
+		if (boardState.winner == boardState.viewer) {
+			alert('You won')
+		}
+
+		else if (boardState.winner == -boardState.viewer) {
+			alert('You lost')
+		}
+
+		else (
+			alert('Game over')
+		)
 	})
 
 	/* Notify the server of a player or viewer on the board */
@@ -21,8 +37,8 @@ for (board of document.getElementsByTagName('connecticut-board')) {
   board.addEventListener('requestmove', (e) => {
 		/* Send move data */
 		board.socket.emit('requestmove', {
-			x: parseInt(e.detail.x),
-			y: parseInt(e.detail.y)
+			x: e.detail.x,
+			y: e.detail.y
 		})
   })
 }

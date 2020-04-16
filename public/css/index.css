@@ -1,0 +1,72 @@
+#newGamePopup {
+  position: fixed;
+
+  display: none;
+
+  background: rgba(0, 0, 0, .5);
+
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+}
+
+#clockSettings {
+  background-color: #525252;
+
+  border-style: dotted;
+  border-width: 0;
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+}
+
+#clockSettings input {
+  display: inline-block;
+  width: calc(100%);
+  margin: auto;
+}
+
+#clockSettings {
+  text-align: left;
+}
+
+#clockSettings h3 {
+  text-align: center;
+  margin-top: 0;
+}
+
+#variantSelection {
+  background: linear-gradient(to top, #525252 -75%, transparent 50%);
+}
+
+#joinColor {
+  background: linear-gradient(to bottom, #525252 -75%, transparent 50%);
+}
+
+#joinColor button {
+  margin: .5em;
+}
+
+#newGame div {
+  padding: 1em;
+}
+
+#newGame {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+  -ms-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 1em;
+
+  width: 24em;
+}
+
+#newGame h2 {
+  margin-bottom: 0;
+}

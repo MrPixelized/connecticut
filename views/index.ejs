@@ -3,19 +3,51 @@
   <head>
     <title>Connecticut Online</title>
 
-    <link href="css/master.css" rel="stylesheet" type="text/css" />
-    <script type="text/javascript" src="js/games/games.js"></script>
+    <link href="/css/master.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/games/games.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
   </head>
   <body>
 		<h1>Connecticut online</h1>
 
     <div id="container">
       <p>Welcome to connecticut online! To join a game, you can browse through the list below. If you'd rather create a new game... Well, the big button down there can't be missed!</p>
-      <form method="GET" action="/play">
-        <input type="text" name="gameId" />
-        <button type="submit" name="action" value="join">Join game</button>
-        <button type="submit" name="action" value="view">Watch game</button>
-      </form>
+      <button onclick="toggleNewGamePopup()">New game</button>
+    </div>
+
+    <div id="newGamePopup" onclick="toggleNewGamePopup()">
+      <div id="newGame" onclick="event.stopPropagation()">
+        <h2>Create a game</h2>
+
+        <form method="POST" action="/newgame" enctype="application/json">
+          <div id="variantSelection">
+            Variant
+            <select id="variant" name="variant">
+              <option value="standard">Standard</option>
+              <option value="jeroenvariant" disabled>JVDB</option>
+              <option value="testing" disabled>Test</option>
+            </select>
+          </div>
+
+          <div id="clockSettings">
+            <h3>Clock settings</h3>
+            Minutes per side:
+            <span id="minutes">5</span>
+            <input name="minutes" type="range" disabled="disabled" id="timerWhite"></input>
+            <br>
+            <br>
+            Increment in seconds:
+            <span id="increment">0</span>
+            <input name="minutes" type="range" disabled="disabled" id="timerWhite"></input>
+          </div>
+
+          <div id="joinColor">
+            <button type="submit" name="action" value="joinBlack">Join black</button>
+            <button type="submit" name="action" value="joinWhite">Join white</button>
+          </div>
+        </form>
+      </div>
     </div>
   </body>
 </html>

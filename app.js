@@ -5,12 +5,17 @@ const express = require('express')
 const app = express()
 const connecticut = require('./private/connecticut.js')
 const helmet = require('helmet')
+const randomWords = require('random-words')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')
 
 /* Make the server use helmet for added security */
 app.use(helmet())
+
+/* Add middleware to parse post requests */
+app.use(express.urlencoded({extended: true}))
+app.use(express.json())
 
 /* Make sure the app uses the 'public' directory for static content */
 app.use(express.static('public'))
@@ -23,23 +28,59 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
-app.get('/play', (req, res) => {
-  var gameId = req.query.gameId
-  var action = req.query.action
+app.post('/newgame', (req, res) => {
+  var action = req.body.action
 
-  /* The player might want to just view the game */
-  if (action == 'view') {
-    res.render('play', {gameId: gameId, viewer: 'viewer'})
-  } else if (action == 'join') {
-    /* If the game does not yet exist, create it */
-    if (!GameConnection.gamesInPlay[gameId]) {
-      GameConnection.gamesInPlay[gameId] = new GameConnection(gameId)
+  /* The player wants to join the game */
+  if (action == 'joinBlack' || action == 'joinWhite') {
+    /* Create the game */
+    game = GameConnection.newGame()
 
-      res.render('play', {gameId: gameId, viewer: 'black'})
-    } else {
-      res.render('play', {gameId: gameId, viewer: 'white'})
+    /* Determine which color the player should be viewing the board as */
+    if (action == 'joinBlack') {
+      res.redirect('/play/' + game.gameId.toString() + '?viewer=black')
+      return
+    }
+
+    if (action == 'joinWhite') {
+      res.redirect('/play/' + game.gameId.toString() + '?viewer=white')
+      return
     }
   }
+
+  res.redirect('/')
+})
+
+app.get('/play/:gameId', (req, res) => {
+  var gameId = req.params.gameId
+  var viewer = req.query.viewer
+
+  game = GameConnection.gamesInPlay[gameId]
+
+  /* Make sure the join request is valid */
+  if (viewer == 'black' && game.blackPlayer ||
+      viewer == 'white' && game.whitePlayer) {
+    res.redirect('/view/' + gameId.toString())
+    return
+  }
+
+  /* If no viewer is specified, pick the right one */
+  if (!viewer) {
+    if (!game.blackPlayer) {
+      viewer = 'black'
+    } else if (!game.whitePlayer) {
+      viewer = 'white'
+    } else {
+      res.redirect('/view/' + gameId.toString())
+      return
+    }
+  }
+
+  res.render('play', {gameId: gameId, viewer: viewer})
+})
+
+app.get('/view/:gameId', (req, res) => {
+  res.render('play', {gameId: req.params.gameId, viewer: 'viewer'})
 })
 
 /* Set up high-level event for incoming connections */
@@ -65,8 +106,20 @@ class GameConnection {
   /* Shared memory to keep trac of all played games */
   static gamesInPlay = {}
 
+  /* Creates a new game with a proper ID */
+  static newGame() {
+    let newId
+
+    /* Generate game id's until the id is unused */
+    do {
+      newId = randomWords({min: 2, max: 3, join: '-'})
+    } while (newId in GameConnection.gamesInPlay)
+
+    return GameConnection.gamesInPlay[newId] = new GameConnection(newId)
+  }
+
   constructor(gameId) {
-    /* Set the game id and viewer */
+    /* Set the game ID */
     this.gameId = gameId
 
     /* Set default values */
@@ -79,11 +132,17 @@ class GameConnection {
     this.game = new connecticut.Game()
   }
 
-  /* Event handler for move made */
-  makeMove(socket, x, y, color) {
-    this.game.setStone(x, y, color)
+  /* Event handler for black move made */
+  makeBlackMove(x, y) {
+    this.game.makeMove(x, y, connecticut.Color.BLACK)
 
-    /* Synchronize the new board with all players and viewers */
+    this.sync()
+  }
+
+  /* Event handler for white move made */
+  makeWhiteMove(x, y) {
+    this.game.makeMove(x, y, connecticut.Color.WHITE)
+
     this.sync()
   }
 
@@ -118,11 +177,11 @@ class GameConnection {
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
-      this.makeMove(socket, move.x, move.y, connecticut.Color.BLACK)
+      this.makeBlackMove(move.x, move.y)
     })
 
     /* Handle disconnected event */
-    socket.on('disconnected', () => {
+    socket.on('disconnect', () => {
       this.blackPlayer = null
     })
   }
@@ -141,11 +200,11 @@ class GameConnection {
 
     /* Make sure the new player can send moves to the server */
     socket.on('requestmove', (move) => {
-      this.makeMove(socket, move.x, move.y, connecticut.Color.WHITE)
+      this.makeWhiteMove(move.x, move.y)
     })
 
     /* Handle disconnected event */
-    socket.on('disconnected', () => {
+    socket.on('disconnect', () => {
       this.whitePlayer = null
     })
   }
@@ -180,7 +239,8 @@ class GameConnection {
     /* Send the sync event with the proper data to the client */
     socket.emit('sync', {
       squares: this.game.squares,
-      viewer: viewer
+      viewer: viewer,
+      winner: this.game.winner
     })
   }
 }

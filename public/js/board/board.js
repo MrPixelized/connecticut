@@ -4,12 +4,12 @@ class ConnecticutBoard extends HTMLElement {
     this.attachShadow({ mode: 'open' })
 
     /* Set default values. */
-    this.tileTexture = 'assets/tiles/brown_tile.svg'
-    this.boardTexture = 'assets/boards/default_board.jpg'
+    this.tileTexture = '/assets/tiles/default_tile.svg'
+    this.boardTexture = '/assets/boards/default_board.jpg'
     this.size = 13
     this.viewer = Color.BLACK
-    this.blackTexture = 'assets/stones/default_black.svg'
-    this.whiteTexture = 'assets/stones/default_white.svg'
+    this.blackTexture = '/assets/stones/default_black.svg'
+    this.whiteTexture = '/assets/stones/default_white.svg'
 
     /* Preload images */
 		document.createElement('img').src = this.blackTexture

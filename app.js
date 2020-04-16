@@ -70,6 +70,10 @@ app.get('/play/:gameId', (req, res) => {
   var gameId = req.params.gameId
   game = GameConnection.gamesInPlay[gameId]
 
+  if (!game) {
+    res.render('index')
+  }
+
   /* Figure out if the player is already in the game or must join in */
   if (game.blackPlayer.sessionID == req.sessionID) {
     res.render('play', {gameId: gameId})

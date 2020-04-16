@@ -3,20 +3,21 @@
   <head>
     <title>Connecticut Online</title>
 
-    <link href="css/master.css" rel="stylesheet">
-    <link href="css/index.css" rel="stylesheet">
-    <script type="text/javascript" src="js/games/games.js"></script>
+    <link href="/css/master.css" rel="stylesheet">
+    <link href="/css/index.css" rel="stylesheet">
+    <script type="text/javascript" src="/js/games/games.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
   </head>
   <body>
 		<h1>Connecticut online</h1>
 
     <div id="container">
       <p>Welcome to connecticut online! To join a game, you can browse through the list below. If you'd rather create a new game... Well, the big button down there can't be missed!</p>
-      <button>New game</button>
+      <button id="newGameButton" onclick="toggleNewGamePopup()">New game</button>
     </div>
 
-    <div id="newGamePopup">
-      <div id="newGame">
+    <div id="newGamePopup" onclick="toggleNewGamePopup()">
+      <div id="newGame" onclick="event.stopPropagation()">
         <h2>Create a game</h2>
 
         <form method="POST" action="/newgame" enctype="application/json">

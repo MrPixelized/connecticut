@@ -5,6 +5,7 @@ const express = require('express')
 const app = express()
 const connecticut = require('./private/connecticut.js')
 const helmet = require('helmet')
+const randomWords = require('random-words')
 
 /* Set the template engine to EJS */
 app.set('view engine', 'ejs')

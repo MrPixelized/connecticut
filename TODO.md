@@ -1,0 +1,9 @@
+- [ ] Fix session issue with joining
+- [ ] Add proper session storage (mongodb)
+- [ ] Make clocks work
+- [ ] General UI improvement
+  - Win/lose message
+  - Light/dark theme
+  - Site nav
+- [ ] Game browser on home page
+- [ ] User accounts

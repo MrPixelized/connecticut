@@ -22,6 +22,8 @@ class Game {
     /* The first player of a new game is always black */
     this.toPlay = Color.BLACK
 
+    this.lastMove = null
+
     this.size = boardSize
 
     this.winner = Color.EMPTY
@@ -54,7 +56,9 @@ class Game {
 
       this.winCondition(x, y)
 
-      this.endTurn()
+      this.lastMove = [x, y]
+
+      this.endTurn(x, y)
     }
   }
 

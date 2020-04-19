@@ -257,7 +257,8 @@ class GameConnection {
     socket.emit('sync', {
       squares: this.game.squares,
       viewer: viewer,
-      winner: this.game.winner
+      winner: this.game.winner,
+      lastmove: this.game.lastMove
     })
   }
 }

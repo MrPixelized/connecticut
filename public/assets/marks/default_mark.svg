@@ -1,4 +1,4 @@
-<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 1000 1000" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <radialGradient id="fadeOut">
       <stop offset="0%" stop-color="black" />
@@ -6,5 +6,5 @@
     </radialGradient>
   </defs>
 
-  <circle cx="5" cy="5" r="4" fill="url('#fadeOut')" />
+  <circle cx="500" cy="500" r="500" fill="url('#fadeOut')" />
 </svg>

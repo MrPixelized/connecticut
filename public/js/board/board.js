@@ -148,9 +148,12 @@ class ConnecticutBoard extends HTMLElement {
    * viewer, winner etc. and synchronizes the board with those properties
    */
   sync(boardState) {
-    this.markLast(boardState.lastMove)
+    if (boardState.lastMove) {
+      this.markLast(boardState.lastMove)
+    }
+
     this.viewer = boardState.viewer
-    syncSquares(boardState.squares)
+    this.syncSquares(boardState.squares)
   }
 
   /* Takes in an array of squares (-1, 0, 1)

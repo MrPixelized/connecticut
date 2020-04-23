@@ -29,6 +29,7 @@ class Square extends HTMLElement {
   markLast() {
     this.unmarkLast()
     this.marking = document.createElement('img')
+    this.marking.id = "marking"
     this.marking.src = this.markingTexture
     this.container.appendChild(this.marking)
   }
@@ -160,6 +161,32 @@ class Square extends HTMLElement {
           border-radius: 50%;
 
           user-select: none;
+
+          z-index: 2;
+        }
+
+        #marking {
+          opacity: 1;
+
+          display: block;
+          position: absolute;
+
+          top: 0;
+          left: 0;
+          bottom: 0;
+          right: 0;
+
+          border-radius: 100%;
+
+          user-select: none;
+          pointer-events: none;
+
+          z-index: 1;
+
+          width: 200%;
+          height: 200%;
+
+          transform: translate(-25%, -25%);
         }
 
         #tile {
@@ -170,6 +197,8 @@ class Square extends HTMLElement {
           margin: -0.75px;
 
           user-select: none;
+
+          z-index: 0;
         }
 
         :host {

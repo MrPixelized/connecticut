@@ -231,7 +231,7 @@ class GameConnection {
   /* A general handler for when a client has disconnected */
   clientDisconnected() {
     /* If there are no players, the connection can be removed from memory */
-    if (!this.blackPlayer && !this.whitePlayer) {
+    if (!this.blackPlayer.socket && !this.whitePlayer.socket) {
       delete(GameConnection.gamesInPlay[this.gameId])
     }
   }

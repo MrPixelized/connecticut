@@ -258,7 +258,7 @@ class GameConnection {
       squares: this.game.squares,
       viewer: viewer,
       winner: this.game.winner,
-      lastmove: this.game.lastMove
+      lastMove: this.game.lastMove
     })
   }
 }

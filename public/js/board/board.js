@@ -126,10 +126,19 @@ class ConnecticutBoard extends HTMLElement {
   }
 
   /* Takes in a number: 1 for white, 0 for empty, -1 for black,
-   * and sets the stone at the given coordinates to that value.
+   * and sets the stone at the given coordinates to that value
    */
   setStone(x, y, color = Color.EMPTY) {
     this.squares[x][y].setStone(color)
+  }
+
+  /* Takes in a board state containing a squares array, last move as [x, y],
+   * viewer, winner etc. and synchronizes the board with those properties
+   */
+  sync(boardState) {
+    /* Mark the given last move square as such */
+    this.viewer = boardState.viewer
+    syncSquares(boardState.squares)
   }
 
   /* Takes in an array of squares (-1, 0, 1)

@@ -133,13 +133,22 @@ class ConnecticutBoard extends HTMLElement {
     this.squares[x][y].setStone(color)
   }
 
+  /* Takes a coordinate and uniquely marks it as the last move */
+  markLast([x, y]) {
+    /* There might not be any marked square yet */
+    if (this.lastMoveSquare) {
+      this.lastMoveSquare.unmarkLast()
+    }
+
+    this.lastMoveSquare = this.squares[x][y]
+    this.lastMoveSquare.markLast()
+  }
+
   /* Takes in a board state containing a squares array, last move as [x, y],
    * viewer, winner etc. and synchronizes the board with those properties
    */
   sync(boardState) {
-    /* Mark the given last move square as such */
-    this.squares[x][y].markLast()
-
+    this.markLast(boardState.lastMove)
     this.viewer = boardState.viewer
     syncSquares(boardState.squares)
   }

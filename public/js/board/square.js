@@ -25,6 +25,24 @@ class Square extends HTMLElement {
     }
   }
 
+  /* Marks the square as a square on which a most recent move was made */
+  markLast() {
+    this.unmarkLast()
+    this.marking = document.createElement('img')
+    this.marking.src = this.markingTexture
+    this.container.appendChild(this.marking)
+  }
+
+  /* If possible, removes the last move marking from the square */
+  unmarkLast() {
+    if (!this.marking) {
+      return
+    }
+
+    this.marking.parentNode.removeChild(this.marking)
+    delete(this.marking)
+  }
+
   /* Is given a number: 1 for white, -1 for black or 0 for empty,
    * and sets various different attributes to make sure the current
    * square displays the proper piece according to this string.
@@ -32,6 +50,11 @@ class Square extends HTMLElement {
   setStone(color = Color.EMPTY) {
     this.color = color
     this.overlay.src = this.texture
+  }
+
+  /* Wrapper function for the square's marking texture */
+  get markingTexture() {
+    return this.parentBoard.lastMoveTexture
   }
 
   /* Wrapper function for the square's color */
@@ -48,7 +71,7 @@ class Square extends HTMLElement {
     return this.parentBoard.tileTexture
   }
 
-  /* Returns the texture used for a stone of a specified color */
+  /* Returns the texture used for a stone of this stones color */
   get texture() {
     /* Return the proper texture to be displayed for the stone color */
     if (this.color == Color.BLACK) {

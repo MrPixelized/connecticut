@@ -6,6 +6,7 @@ class ConnecticutBoard extends HTMLElement {
     /* Set default values. */
     this.tileTexture = '/assets/tiles/default_tile.svg'
     this.boardTexture = '/assets/boards/default_board.jpg'
+    this.lastMoveTexture = '/assets/marks/default_mark.svg'
     this.size = 13
     this.viewer = Color.BLACK
     this.blackTexture = '/assets/stones/default_black.svg'
@@ -137,6 +138,8 @@ class ConnecticutBoard extends HTMLElement {
    */
   sync(boardState) {
     /* Mark the given last move square as such */
+    this.squares[x][y].markLast()
+
     this.viewer = boardState.viewer
     syncSquares(boardState.squares)
   }

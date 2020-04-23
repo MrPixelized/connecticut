@@ -208,6 +208,7 @@ class GameConnection {
     /* Handle disconnected event */
     socket.on('disconnect', () => {
       this.blackPlayer.socket = null
+      this.clientDisconnected()
     })
   }
 
@@ -223,7 +224,16 @@ class GameConnection {
     /* Handle disconnected event */
     socket.on('disconnect', () => {
       this.whitePlayer.socket = null
+      this.clientDisconnected()
     })
+  }
+
+  /* A general handler for when a client has disconnected */
+  clientDisconnected() {
+    /* If there are no players, the connection can be removed from memory */
+    if (!this.blackPlayer && !this.whitePlayer) {
+      delete(GameConnection.gamesInPlay[this.gameId])
+    }
   }
 
   /* Synchronize the board between all viewers and players */

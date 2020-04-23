@@ -7,3 +7,4 @@
   - Site nav
 - [ ] Game browser on home page
 - [ ] User accounts
+- [x] Marker for last move on board

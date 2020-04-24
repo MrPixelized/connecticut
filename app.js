@@ -32,40 +32,35 @@ server = app.listen(3000)
 
 const io = require('socket.io')(server)
 
+/* Allow the linking between sessions and sockets */
 io.use(sharedsession(session, {
     autoSave:true
 }))
 
-/* Handles for routes */
+/* Redirect homepage to index */
 app.get('/', (req, res) => {
   res.render('index')
 })
 
+/* New game handler */
 app.post('/newgame', (req, res) => {
   var action = req.body.action
 
-  /* The player wants to join the game */
-  if (action == 'joinBlack' || action == 'joinWhite') {
-    /* Create the game */
-    game = GameConnection.newGame()
+  /* Create the game */
+  game = GameConnection.newGame()
 
-    /* Determine which color the player should be viewing the board as */
-    if (action == 'joinBlack') {
-      game.join(req, connecticut.Color.BLACK)
-      res.redirect('/play/' + game.gameId.toString())
-      return
-    }
-
-    if (action == 'joinWhite') {
-      game.join(req, connecticut.Color.WHITE)
-      res.redirect('/play/' + game.gameId.toString())
-      return
-    }
+  /* Join the game according to the action */
+  if (action == 'joinBlack') {
+    game.join(req, connecticut.Color.BLACK)
+  } else if (action == 'joinWhite') {
+    game.join(req, connecticut.Color.WHITE)
   }
 
-  res.redirect('/')
+  /* Go to the play area */
+  res.redirect('/play/' + game.gameId.toString())
 })
 
+/* Handler for a player attempting to join a game */
 app.get('/play/:gameId', (req, res) => {
   var gameId = req.params.gameId
   game = GameConnection.gamesInPlay[gameId]
@@ -98,6 +93,7 @@ app.get('/play/:gameId', (req, res) => {
   res.render('play', {gameId: gameId})
 })
 
+/* Handler for a client attempting to view the game */
 app.get('/view/:gameId', (req, res) => {
   res.render('play', {gameId: req.params.gameId, viewer: 'viewer'})
 })
@@ -230,7 +226,7 @@ class GameConnection {
 
   /* A general handler for when a client has disconnected */
   clientDisconnected() {
-    /* If there are no players, the connection can be removed from memory */
+    /* If there are no players left, the connection is removed from memory */
     if (!this.blackPlayer.socket && !this.whitePlayer.socket) {
       delete(GameConnection.gamesInPlay[this.gameId])
     }

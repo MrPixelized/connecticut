@@ -28,7 +28,8 @@ app.use(express.json())
 
 /* Make sure the app uses the 'public' directory for static content */
 app.use(express.static('public'))
-server = app.listen(3000)
+/* Everything must pass through an nginx server on localhost */
+server = app.listen(3000, 'localhost')
 
 const io = require('socket.io')(server)
 

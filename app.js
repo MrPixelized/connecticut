@@ -28,6 +28,7 @@ app.use(express.json())
 
 /* Make sure the app uses the 'public' directory for static content */
 app.use(express.static('public'))
+
 /* Everything must pass through an nginx server on localhost */
 server = app.listen(3000, 'localhost')
 
@@ -67,7 +68,8 @@ app.get('/play/:gameId', (req, res) => {
   game = GameConnection.gamesInPlay[gameId]
 
   if (!game) {
-    res.render('index')
+    res.redirect('/')
+    return
   }
 
   /* Figure out if the player is already in the game or must join in */
